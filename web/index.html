@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chatbot UI</title>
+    <script type="text/javascript" src="/eel.js"></script>
+    <style>
+        body {
+            font-family: 'Times New Roman', Times, serif;
+            font-style: italic; /* Schriftart kursiv */
+            margin: 0;
+            padding: 0;
+            background-color: #121212;
+            color: #ffffff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            box-sizing: border-box;
+            overflow: hidden;
+        }
+
+        .chat-container {
+            width: 100%;
+            height: 100%;
+            max-width: 800px;
+            max-height: 600px;
+            border-radius: 20px;
+            background-color: #1e1e1e;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .chat-messages {
+            padding: 15px;
+            flex: 1;
+            overflow-y: auto;
+            font-family: 'Times New Roman', Times, serif; /* Klassische Schriftart */
+            font-style: italic; /* Schriftart kursiv */
+        }
+
+        .user-message {
+            background-color: #5F9EA0;
+            color: #ffffff;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 10px;
+            align-self: flex-end;
+            animation: slideInRight 0.5s ease-out;
+        }
+
+        .assistant-message {
+            background-color: #FF6347;
+            color: #ffffff;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 10px;
+            animation: slideInLeft 0.5s ease-out;
+        }
+
+        .chat-input-container {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            border-top: 1px solid #dddddd;
+            background-color: #2a2a2a;
+            border-bottom-left-radius: 20px;
+            border-bottom-right-radius: 20px;
+        }
+
+        .chat-input {
+            flex: 1;
+            padding: 10px;
+            border-radius: 15px;
+            border: 1px solid #555555;
+            color: #ffffff;
+            background-color: #333333;
+            font-family: 'Times New Roman', Times, serif;
+            font-style: italic;
+            outline: none;
+        }
+
+        .send-button {
+            background-color: #4169E1;
+            color: #ffffff;
+            border: none;
+            padding: 10px 20px;
+            margin-left: 10px;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .send-button:hover {
+            background-color: #FF6347;
+        }
+
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes slideInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="chat-container">
+        <div class="chat-messages" id="chat-messages"></div>
+        <div class="chat-input-container">
+            <input type="text" id="user-input" class="chat-input" onkeydown="if (event.keyCode === 13) sendMessage()" placeholder="Type your message...">
+            <button onclick="sendMessage()" class="send-button">Send</button>
+        </div>
+    </div>
+
+    <script>
+        function sendMessage() {
+            var userInput = document.getElementById('user-input').value;
+            if (!userInput.trim()) return;  
+            addUserMessage(userInput);
+            document.getElementById('user-input').value = '';
+
+            eel.send(userInput)(function(response) {
+                addAssistantMessage(response);
+            });
+        }
+
+        function addUserMessage(message) {
+            var chatMessages = document.getElementById('chat-messages');
+            var messageDiv = document.createElement('div');
+            messageDiv.classList.add('user-message');
+            messageDiv.textContent = message;
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function addAssistantMessage(message) {
+            eel.format_output(message)(function(formattedOutput) {
+                var chatMessages = document.getElementById('chat-messages');
+                var messageDiv = document.createElement('div');
+                messageDiv.classList.add('assistant-message');
+                messageDiv.innerHTML = formattedOutput;
+                chatMessages.appendChild(messageDiv);
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            });
+        }
+    </script>
+</body>
+</html>
